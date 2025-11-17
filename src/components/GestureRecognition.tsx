@@ -48,6 +48,20 @@ const loadScript = (src: string): Promise<void> => {
   });
 };
 
+// Text-to-Speech function
+const speakGesture = (gestureName: string) => {
+  if ('speechSynthesis' in window) {
+    // Cancel any ongoing speech
+    window.speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(gestureName);
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+    utterance.volume = 1.0;
+    window.speechSynthesis.speak(utterance);
+  }
+};
+
 export default function GestureRecognition() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -57,6 +71,8 @@ export default function GestureRecognition() {
   const previousLandmarksRef = useRef<Landmark[]>();
   const handsRef = useRef<any>(null);
   const cameraRef = useRef<any>(null);
+  const lastSpokenGestureRef = useRef<string>("");
+  const lastSpeakTimeRef = useRef<number>(0);
 
   useEffect(() => {
     let mounted = true;
@@ -149,6 +165,18 @@ export default function GestureRecognition() {
 
               if (gestures.length > 0) {
                 setDetectedGestures(gestures);
+                
+                // Text-to-Speech: Speak the gesture if it's new and enough time has passed
+                const topGesture = gestures[0].gesture;
+                const now = Date.now();
+                const timeSinceLastSpeak = now - lastSpeakTimeRef.current;
+                
+                // Speak if: different gesture OR same gesture but 3 seconds have passed
+                if (topGesture !== lastSpokenGestureRef.current || timeSinceLastSpeak > 3000) {
+                  speakGesture(topGesture);
+                  lastSpokenGestureRef.current = topGesture;
+                  lastSpeakTimeRef.current = now;
+                }
               }
             }
           } else {
@@ -196,6 +224,10 @@ export default function GestureRecognition() {
       if (handsRef.current) {
         handsRef.current.close();
       }
+      // Cancel any ongoing speech
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
     };
   }, []);
 
@@ -207,7 +239,7 @@ export default function GestureRecognition() {
           <CardHeader>
             <CardTitle>Live Camera Feed</CardTitle>
             <CardDescription>
-              Hand landmarks and skeleton overlay are always visible
+              Hand landmarks and skeleton overlay are always visible • Voice feedback enabled
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -242,7 +274,7 @@ export default function GestureRecognition() {
             {detectedGestures.length > 0 && (
               <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border-2 border-green-500">
                 <h3 className="text-xl font-bold text-green-700 dark:text-green-400 mb-2">
-                  🎯 Detected Gesture
+                  🎯 Detected Gesture • 🔊 Speaking
                 </h3>
                 <div className="space-y-2">
                   {detectedGestures.slice(0, 3).map((gesture, idx) => (
