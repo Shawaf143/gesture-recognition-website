@@ -20,7 +20,7 @@ declare global {
 const GESTURE_DESCRIPTIONS: Record<string, string> = {
   "HELLO": "Wave hand left-right with all fingers extended",
   "YES": "Thumbs-up gesture",
-  "NO": "Index + middle fingers together with thumb extended",
+  "NO": "Thumbs-down gesture",
   "I LOVE YOU": "Thumb + index + pinky raised",
   "PLEASE": "Flat hand on chest area",
   "I AM GOOD": "Form O shape with thumb and index",

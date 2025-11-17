@@ -136,12 +136,16 @@ function detectYes(landmarks: Landmark[]): GestureResult {
 }
 
 function detectNo(landmarks: Landmark[]): GestureResult {
-  const indexMiddleTogether = areFingersTogether(landmarks, 8, 12, 0.04);
-  const indexMiddleExtended = isFingerExtended(landmarks, 8, 6) && isFingerExtended(landmarks, 12, 10);
   const thumbExtended = distance(landmarks[4], landmarks[0]) > distance(landmarks[3], landmarks[0]);
-  const ringPinkyClosed = !isFingerExtended(landmarks, 16, 14) && !isFingerExtended(landmarks, 20, 18);
+  const otherFingersClosed = 
+    !isFingerExtended(landmarks, 8, 6) &&
+    !isFingerExtended(landmarks, 12, 10) &&
+    !isFingerExtended(landmarks, 16, 14) &&
+    !isFingerExtended(landmarks, 20, 18);
   
-  const confidence = indexMiddleTogether && indexMiddleExtended && thumbExtended && ringPinkyClosed ? 0.85 : 0;
+  const thumbPointingDown = landmarks[4].y > landmarks[3].y && landmarks[3].y > landmarks[2].y;
+  
+  const confidence = thumbExtended && otherFingersClosed && thumbPointingDown ? 0.9 : 0;
   return { gesture: 'NO', confidence };
 }
 
