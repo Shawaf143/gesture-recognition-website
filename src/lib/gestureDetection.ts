@@ -59,10 +59,6 @@ export function detectGestures(
   const helloGesture = detectHello(landmarks, previousLandmarks);
   if (helloGesture.confidence > 0.6) results.push(helloGesture);
   
-  // THANK YOU - Flat hand at chin/mouth
-  const thankYouGesture = detectThankYou(landmarks);
-  if (thankYouGesture.confidence > 0.7) results.push(thankYouGesture);
-  
   // YES/DONE - Thumbs up or forward punch
   const yesGesture = detectYes(landmarks);
   if (yesGesture.confidence > 0.75) results.push(yesGesture);
@@ -83,10 +79,6 @@ export function detectGestures(
   const emergencyGesture = detectEmergency(landmarks);
   if (emergencyGesture.confidence > 0.7) results.push(emergencyGesture);
   
-  // HOW ARE YOU - Point toward camera and move outward
-  const howAreYouGesture = detectHowAreYou(landmarks);
-  if (howAreYouGesture.confidence > 0.7) results.push(howAreYouGesture);
-  
   // I AM GOOD/FINE - Form O shape
   const iAmGoodGesture = detectIAmGood(landmarks);
   if (iAmGoodGesture.confidence > 0.7) results.push(iAmGoodGesture);
@@ -95,21 +87,13 @@ export function detectGestures(
   const sorryGesture = detectSorry(landmarks);
   if (sorryGesture.confidence > 0.65) results.push(sorryGesture);
   
-  // STOP - Raise only pinky finger
+  // STOP - Raise index and middle finger up, other fingers closed
   const stopGesture = detectStop(landmarks);
   if (stopGesture.confidence > 0.8) results.push(stopGesture);
   
   // GO - Show only index finger
   const goGesture = detectGo(landmarks);
   if (goGesture.confidence > 0.8) results.push(goGesture);
-  
-  // DANGER - Cross fingers forming X
-  const dangerGesture = detectDanger(landmarks);
-  if (dangerGesture.confidence > 0.7) results.push(dangerGesture);
-  
-  // FOOD/HUNGRY - Tap fingertips toward mouth
-  const foodGesture = detectFood(landmarks);
-  if (foodGesture.confidence > 0.7) results.push(foodGesture);
   
   // WATER/THIRSTY - Fold all fingers except thumb
   const waterGesture = detectWater(landmarks);
@@ -260,15 +244,16 @@ function detectSorry(landmarks: Landmark[]): GestureResult {
 }
 
 function detectStop(landmarks: Landmark[]): GestureResult {
-  const pinkyExtended = isFingerExtended(landmarks, 20, 18);
+  const indexExtended = isFingerExtended(landmarks, 8, 6);
+  const middleExtended = isFingerExtended(landmarks, 12, 10);
   const otherFingersClosed = 
-    !isFingerExtended(landmarks, 8, 6) &&
-    !isFingerExtended(landmarks, 12, 10) &&
-    !isFingerExtended(landmarks, 16, 14);
+    !isFingerExtended(landmarks, 16, 14) &&
+    !isFingerExtended(landmarks, 20, 18);
   
   const thumbClosed = distance(landmarks[4], landmarks[0]) < distance(landmarks[3], landmarks[0]) * 1.3;
+  const fingersPointingUp = landmarks[8].y < landmarks[6].y && landmarks[12].y < landmarks[10].y;
   
-  const confidence = pinkyExtended && otherFingersClosed && thumbClosed ? 0.9 : 0;
+  const confidence = indexExtended && middleExtended && otherFingersClosed && thumbClosed && fingersPointingUp ? 0.9 : 0;
   return { gesture: 'STOP', confidence };
 }
 

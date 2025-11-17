@@ -21,7 +21,7 @@ export default function GestureRecognitionPage() {
             AI Gesture Recognition
           </h1>
           <p className="text-lg text-muted-foreground max-w-3xl">
-            Real-time hand gesture recognition powered by MediaPipe Hands. The hand skeleton and landmarks are always visible to show detection clarity. Perform any of the 16 gestures to see instant recognition.
+            Real-time hand gesture recognition powered by MediaPipe Hands. The hand skeleton and landmarks are always visible to show detection clarity. Perform any of the 12 gestures to see instant recognition.
           </p>
         </div>
 
@@ -46,7 +46,7 @@ export default function GestureRecognitionPage() {
           </div>
           <div className="p-6 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
             <div className="text-3xl mb-3">🤲</div>
-            <h3 className="font-bold mb-2">16 Gestures</h3>
+            <h3 className="font-bold mb-2">12 Gestures</h3>
             <p className="text-sm text-muted-foreground">
               Comprehensive gesture library from basic signs to complex expressions
             </p>
