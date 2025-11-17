@@ -59,7 +59,7 @@ export function detectGestures(
   const helloGesture = detectHello(landmarks, previousLandmarks);
   if (helloGesture.confidence > 0.6) results.push(helloGesture);
   
-  // YES/DONE - Thumbs up or forward punch
+  // YES - Thumbs up
   const yesGesture = detectYes(landmarks);
   if (yesGesture.confidence > 0.75) results.push(yesGesture);
   
@@ -67,7 +67,7 @@ export function detectGestures(
   const noGesture = detectNo(landmarks);
   if (noGesture.confidence > 0.7) results.push(noGesture);
   
-  // I LOVE YOU - Thumb+index+pinky raised OR heart shape
+  // I LOVE YOU - Thumb+index+pinky raised
   const iLoveYouGesture = detectILoveYou(landmarks);
   if (iLoveYouGesture.confidence > 0.7) results.push(iLoveYouGesture);
   
@@ -75,11 +75,7 @@ export function detectGestures(
   const pleaseGesture = detectPlease(landmarks);
   if (pleaseGesture.confidence > 0.65) results.push(pleaseGesture);
   
-  // EMERGENCY - Both hands raised (single hand version)
-  const emergencyGesture = detectEmergency(landmarks);
-  if (emergencyGesture.confidence > 0.7) results.push(emergencyGesture);
-  
-  // I AM GOOD/FINE - Form O shape
+  // I AM GOOD - Form O shape
   const iAmGoodGesture = detectIAmGood(landmarks);
   if (iAmGoodGesture.confidence > 0.7) results.push(iAmGoodGesture);
   
@@ -95,9 +91,9 @@ export function detectGestures(
   const goGesture = detectGo(landmarks);
   if (goGesture.confidence > 0.8) results.push(goGesture);
   
-  // WATER/THIRSTY - Fold all fingers except thumb
-  const waterGesture = detectWater(landmarks);
-  if (waterGesture.confidence > 0.75) results.push(waterGesture);
+  // THIRSTY - Fold all fingers except thumb
+  const thirstyGesture = detectThirsty(landmarks);
+  if (thirstyGesture.confidence > 0.75) results.push(thirstyGesture);
   
   // CALL/PHONE - Phone gesture near ear
   const callGesture = detectCall(landmarks);
@@ -125,20 +121,6 @@ function detectHello(landmarks: Landmark[], previousLandmarks?: Landmark[]): Ges
   return { gesture: 'HELLO', confidence };
 }
 
-function detectThankYou(landmarks: Landmark[]): GestureResult {
-  const allFingersExtended = 
-    isFingerExtended(landmarks, 8, 6) &&
-    isFingerExtended(landmarks, 12, 10) &&
-    isFingerExtended(landmarks, 16, 14) &&
-    isFingerExtended(landmarks, 20, 18);
-  
-  const nearMouth = landmarks[9].y < 0.4;
-  const palmOrientation = landmarks[0].y > landmarks[9].y;
-  
-  const confidence = allFingersExtended && nearMouth && palmOrientation ? 0.85 : 0;
-  return { gesture: 'THANK YOU', confidence };
-}
-
 function detectYes(landmarks: Landmark[]): GestureResult {
   const thumbExtended = distance(landmarks[4], landmarks[0]) > distance(landmarks[3], landmarks[0]);
   const otherFingersClosed = 
@@ -150,7 +132,7 @@ function detectYes(landmarks: Landmark[]): GestureResult {
   const thumbPointingUp = landmarks[4].y < landmarks[3].y && landmarks[3].y < landmarks[2].y;
   
   const confidence = thumbExtended && otherFingersClosed && thumbPointingUp ? 0.9 : 0;
-  return { gesture: 'YES/DONE', confidence };
+  return { gesture: 'YES', confidence };
 }
 
 function detectNo(landmarks: Landmark[]): GestureResult {
@@ -187,36 +169,6 @@ function detectPlease(landmarks: Landmark[]): GestureResult {
   return { gesture: 'PLEASE', confidence };
 }
 
-function detectEmergency(landmarks: Landmark[]): GestureResult {
-  const allFingersExtended = 
-    isFingerExtended(landmarks, 8, 6) &&
-    isFingerExtended(landmarks, 12, 10) &&
-    isFingerExtended(landmarks, 16, 14) &&
-    isFingerExtended(landmarks, 20, 18);
-  
-  const handRaised = landmarks[9].y < 0.3;
-  const fingersSpread = 
-    distance(landmarks[8], landmarks[12]) > 0.08 &&
-    distance(landmarks[12], landmarks[16]) > 0.08 &&
-    distance(landmarks[16], landmarks[20]) > 0.08;
-  
-  const confidence = allFingersExtended && handRaised && fingersSpread ? 0.8 : 0;
-  return { gesture: 'EMERGENCY', confidence };
-}
-
-function detectHowAreYou(landmarks: Landmark[]): GestureResult {
-  const indexExtended = isFingerExtended(landmarks, 8, 6);
-  const otherFingersClosed = 
-    !isFingerExtended(landmarks, 12, 10) &&
-    !isFingerExtended(landmarks, 16, 14) &&
-    !isFingerExtended(landmarks, 20, 18);
-  
-  const pointingForward = landmarks[8].z < landmarks[5].z - 0.05;
-  
-  const confidence = indexExtended && otherFingersClosed && pointingForward ? 0.8 : 0;
-  return { gesture: 'HOW ARE YOU', confidence };
-}
-
 function detectIAmGood(landmarks: Landmark[]): GestureResult {
   const thumbIndexDistance = distance(landmarks[4], landmarks[8]);
   const oShape = thumbIndexDistance < 0.05;
@@ -227,7 +179,7 @@ function detectIAmGood(landmarks: Landmark[]): GestureResult {
     isFingerExtended(landmarks, 20, 18);
   
   const confidence = oShape && otherFingersExtended ? 0.85 : 0;
-  return { gesture: 'I AM GOOD/FINE', confidence };
+  return { gesture: 'I AM GOOD', confidence };
 }
 
 function detectSorry(landmarks: Landmark[]): GestureResult {
@@ -271,32 +223,7 @@ function detectGo(landmarks: Landmark[]): GestureResult {
   return { gesture: 'GO', confidence };
 }
 
-function detectDanger(landmarks: Landmark[]): GestureResult {
-  const indexExtended = isFingerExtended(landmarks, 8, 6);
-  const middleExtended = isFingerExtended(landmarks, 12, 10);
-  const otherFingersClosed = !isFingerExtended(landmarks, 16, 14) && !isFingerExtended(landmarks, 20, 18);
-  
-  const fingersCrossed = areFingersTogether(landmarks, 8, 12, 0.03);
-  const xShape = Math.abs(landmarks[8].x - landmarks[12].x) < 0.03;
-  
-  const confidence = indexExtended && middleExtended && otherFingersClosed && fingersCrossed && xShape ? 0.85 : 0;
-  return { gesture: 'DANGER', confidence };
-}
-
-function detectFood(landmarks: Landmark[]): GestureResult {
-  const fingertipsTogether = 
-    areFingersTogether(landmarks, 4, 8, 0.04) &&
-    areFingersTogether(landmarks, 8, 12, 0.04) &&
-    areFingersTogether(landmarks, 12, 16, 0.04);
-  
-  const nearMouth = landmarks[8].y < 0.4;
-  const allFingersUp = landmarks[8].y < landmarks[0].y;
-  
-  const confidence = fingertipsTogether && nearMouth && allFingersUp ? 0.8 : 0;
-  return { gesture: 'FOOD/HUNGRY', confidence };
-}
-
-function detectWater(landmarks: Landmark[]): GestureResult {
+function detectThirsty(landmarks: Landmark[]): GestureResult {
   const thumbExtended = distance(landmarks[4], landmarks[0]) > distance(landmarks[3], landmarks[0]);
   const otherFingersClosed = 
     !isFingerExtended(landmarks, 8, 6) &&
@@ -308,7 +235,7 @@ function detectWater(landmarks: Landmark[]): GestureResult {
   const thumbHorizontal = Math.abs(landmarks[4].y - landmarks[2].y) < 0.1;
   
   const confidence = thumbExtended && otherFingersClosed && (thumbDownward || thumbHorizontal) ? 0.85 : 0;
-  return { gesture: 'WATER/THIRSTY', confidence };
+  return { gesture: 'THIRSTY', confidence };
 }
 
 function detectCall(landmarks: Landmark[]): GestureResult {
