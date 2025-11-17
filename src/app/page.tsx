@@ -12,7 +12,7 @@ export default function Home() {
             AI Gesture Recognition
           </h1>
           <p className="text-lg text-gray-300 max-w-3xl">
-            Real-time hand gesture recognition powered by MediaPipe Hands. The hand skeleton and landmarks are always visible to show detection clarity. Perform any of the 11 gestures to see instant recognition.
+            Real-time hand gesture recognition powered by MediaPipe Hands. The hand skeleton and landmarks are always visible to show detection clarity. Perform any of the 9 gestures to see instant recognition.
           </p>
         </div>
 

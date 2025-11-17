@@ -83,10 +83,6 @@ export function detectGestures(
   const sorryGesture = detectSorry(landmarks);
   if (sorryGesture.confidence > 0.65) results.push(sorryGesture);
   
-  // STOP - Raise index and middle finger up, other fingers closed
-  const stopGesture = detectStop(landmarks);
-  if (stopGesture.confidence > 0.8) results.push(stopGesture);
-  
   // GO - Show only index finger
   const goGesture = detectGo(landmarks);
   if (goGesture.confidence > 0.8) results.push(goGesture);
@@ -137,15 +133,17 @@ function detectYes(landmarks: Landmark[]): GestureResult {
 
 function detectNo(landmarks: Landmark[]): GestureResult {
   const thumbExtended = distance(landmarks[4], landmarks[0]) > distance(landmarks[3], landmarks[0]);
+  const indexExtended = isFingerExtended(landmarks, 8, 6);
+  const middleExtended = isFingerExtended(landmarks, 12, 10);
   const otherFingersClosed = 
-    !isFingerExtended(landmarks, 8, 6) &&
-    !isFingerExtended(landmarks, 12, 10) &&
     !isFingerExtended(landmarks, 16, 14) &&
     !isFingerExtended(landmarks, 20, 18);
   
-  const thumbPointingDown = landmarks[4].y > landmarks[3].y && landmarks[3].y > landmarks[2].y;
+  // Check if index and middle fingers are together
+  const fingersTogether = areFingersTogether(landmarks, 8, 12, 0.08);
+  const fingersPointingUp = landmarks[8].y < landmarks[6].y && landmarks[12].y < landmarks[10].y;
   
-  const confidence = thumbExtended && otherFingersClosed && thumbPointingDown ? 0.9 : 0;
+  const confidence = thumbExtended && indexExtended && middleExtended && otherFingersClosed && fingersTogether && fingersPointingUp ? 0.9 : 0;
   return { gesture: 'NO', confidence };
 }
 
@@ -197,20 +195,6 @@ function detectSorry(landmarks: Landmark[]): GestureResult {
   
   const confidence = fistClosed && nearChest ? 0.75 : 0;
   return { gesture: 'SORRY', confidence };
-}
-
-function detectStop(landmarks: Landmark[]): GestureResult {
-  const indexExtended = isFingerExtended(landmarks, 8, 6);
-  const middleExtended = isFingerExtended(landmarks, 12, 10);
-  const otherFingersClosed = 
-    !isFingerExtended(landmarks, 16, 14) &&
-    !isFingerExtended(landmarks, 20, 18);
-  
-  const thumbClosed = distance(landmarks[4], landmarks[0]) < distance(landmarks[3], landmarks[0]) * 1.3;
-  const fingersPointingUp = landmarks[8].y < landmarks[6].y && landmarks[12].y < landmarks[10].y;
-  
-  const confidence = indexExtended && middleExtended && otherFingersClosed && thumbClosed && fingersPointingUp ? 0.9 : 0;
-  return { gesture: 'STOP', confidence };
 }
 
 function detectGo(landmarks: Landmark[]): GestureResult {

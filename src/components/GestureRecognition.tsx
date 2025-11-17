@@ -20,12 +20,11 @@ declare global {
 const GESTURE_DESCRIPTIONS: Record<string, string> = {
   "HELLO": "Wave hand left-right with all fingers extended",
   "YES": "Thumbs-up gesture",
-  "NO": "Thumbs-down gesture",
+  "NO": "Index + middle fingers together with thumb extended",
   "I LOVE YOU": "Thumb + index + pinky raised",
   "PLEASE": "Flat hand on chest area",
   "I AM GOOD": "Form O shape with thumb and index",
   "SORRY": "Fist on chest making circles",
-  "STOP": "Raise index and middle fingers up, other fingers closed",
   "GO": "Show only index finger pointing up",
   "THIRSTY": "Thumb extended, other fingers folded downward",
   "CALL/PHONE": "Phone gesture near ear (thumb + pinky extended)"
@@ -298,7 +297,7 @@ export default function GestureRecognition() {
         <Card className="sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto">
           <CardHeader>
             <CardTitle>Gesture Guide</CardTitle>
-            <CardDescription>All 11 supported gestures</CardDescription>
+            <CardDescription>All 10 supported gestures</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
